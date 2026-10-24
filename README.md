@@ -10,7 +10,7 @@ A small Java Swing + JDBC + MySQL application for student item reports and admin
 
 ## Set up the database
 
-Run `sql/schema_simple.sql` in MySQL Workbench or with the MySQL command line. Set the connection environment variables if your local MySQL settings differ from the defaults:
+Run `sql/schema.sql` in MySQL Workbench or with the MySQL command line. Set the connection environment variables if your local MySQL settings differ from the defaults:
 
 - `LOSTFOUND_DB_URL` (default `jdbc:mysql://localhost:3306/campus_lost_found?serverTimezone=UTC`)
 - `LOSTFOUND_DB_USER` (default `root`)

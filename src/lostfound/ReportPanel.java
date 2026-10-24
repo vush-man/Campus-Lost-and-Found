@@ -13,8 +13,14 @@ public class ReportPanel extends JPanel {
     private final JComboBox<String> type = new JComboBox<>(new String[]{"LOST", "FOUND"});
     private final JTextField title = new JTextField(28);
     private final JTextArea description = new JTextArea(5, 28);
-    private final JTextField category = new JTextField(28);
-    private final JTextField location = new JTextField(28);
+    private final JComboBox<String> category = new JComboBox<>(new String[]{
+            "Electronics", "Clothing", "Books and stationery", "Keys", "Wallets and bags",
+            "ID cards", "Jewelry", "Accessories", "Other"
+    });
+    private final JComboBox<String> location = new JComboBox<>(new String[]{
+            "Library", "Cafeteria", "Classroom", "Laboratory", "Hostel",
+            "Parking lot", "Sports ground", "Administrative office", "Other"
+    });
     private final JTextField date = new JTextField(LocalDate.now().toString(), 28);
     private final JButton submit = new JButton("Submit report");
 
@@ -22,6 +28,8 @@ public class ReportPanel extends JPanel {
         this.user = user;
         setLayout(new BorderLayout());
         setBorder(new EmptyBorder(18, 18, 18, 18));
+        category.setEditable(true);
+        location.setEditable(true);
         JPanel form = new JPanel(new GridBagLayout());
         GridBagConstraints c = new GridBagConstraints();
         c.insets = new Insets(6, 6, 6, 6); c.anchor = GridBagConstraints.WEST;
@@ -46,8 +54,8 @@ public class ReportPanel extends JPanel {
     private void submitReport() {
         String itemTitle = title.getText().trim();
         String itemDescription = description.getText().trim();
-        String itemCategory = category.getText().trim();
-        String itemLocation = location.getText().trim();
+        String itemCategory = ((JTextField) category.getEditor().getEditorComponent()).getText().trim();
+        String itemLocation = ((JTextField) location.getEditor().getEditorComponent()).getText().trim();
         LocalDate eventDate;
         try { eventDate = LocalDate.parse(date.getText().trim()); }
         catch (DateTimeParseException ex) { message("Enter the date in YYYY-MM-DD format."); return; }
@@ -65,7 +73,7 @@ public class ReportPanel extends JPanel {
                 submit.setEnabled(true);
                 try {
                     get(); message("Item report added."); title.setText(""); description.setText("");
-                    category.setText(""); location.setText(""); date.setText(LocalDate.now().toString());
+                    category.setSelectedIndex(0); location.setSelectedIndex(0); date.setText(LocalDate.now().toString());
                 } catch (InterruptedException ex) { Thread.currentThread().interrupt(); message("Save was interrupted."); }
                 catch (java.util.concurrent.ExecutionException ex) { message("Database error: " + ex.getCause().getMessage()); }
             }
