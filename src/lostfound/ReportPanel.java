@@ -5,7 +5,10 @@ import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeParseException;
+import java.time.format.TextStyle;
+import java.util.Locale;
 
 public class ReportPanel extends JPanel {
     private final User user;
@@ -22,6 +25,7 @@ public class ReportPanel extends JPanel {
             "Parking lot", "Sports ground", "Administrative office", "Other"
     });
     private final JTextField date = new JTextField(LocalDate.now().toString(), 28);
+    private final JButton calendar = new JButton("Calendar...");
     private final JButton submit = new JButton("Submit report");
 
     public ReportPanel(User user) {
@@ -38,11 +42,56 @@ public class ReportPanel extends JPanel {
         c.gridy++; addRow(form, c, "Description", new JScrollPane(description));
         c.gridy++; addRow(form, c, "Category", category);
         c.gridy++; addRow(form, c, "Location", location);
-        c.gridy++; addRow(form, c, "Date (YYYY-MM-DD)", date);
+        JPanel dateInput = new JPanel(new BorderLayout(6, 0));
+        dateInput.add(date, BorderLayout.CENTER);
+        dateInput.add(calendar, BorderLayout.EAST);
+        c.gridy++; addRow(form, c, "Date (YYYY-MM-DD)", dateInput);
         LoginFrame.style(submit);
         c.gridy++; c.gridx = 1; c.anchor = GridBagConstraints.EAST; form.add(submit, c);
         add(form, BorderLayout.NORTH);
         submit.addActionListener(e -> submitReport());
+        calendar.addActionListener(e -> chooseDate());
+    }
+
+    private void chooseDate() {
+        LocalDate initial;
+        try { initial = LocalDate.parse(date.getText().trim()); }
+        catch (DateTimeParseException ex) { initial = LocalDate.now(); }
+        JDialog dialog = new JDialog(SwingUtilities.getWindowAncestor(this), "Choose date", Dialog.ModalityType.APPLICATION_MODAL);
+        JPanel picker = new JPanel(new BorderLayout(8, 8));
+        picker.setBorder(new EmptyBorder(10, 10, 10, 10));
+        JPanel monthHeader = new JPanel(new BorderLayout());
+        JLabel monthLabel = new JLabel("", SwingConstants.CENTER);
+        JButton previous = new JButton("<"), next = new JButton(">");
+        monthHeader.add(previous, BorderLayout.WEST);
+        monthHeader.add(monthLabel, BorderLayout.CENTER);
+        monthHeader.add(next, BorderLayout.EAST);
+        picker.add(monthHeader, BorderLayout.NORTH);
+        JPanel days = new JPanel(new GridLayout(0, 7, 3, 3));
+        picker.add(days, BorderLayout.CENTER);
+        YearMonth[] shownMonth = {YearMonth.from(initial)};
+        Runnable refresh = () -> {
+            monthLabel.setText(shownMonth[0].getMonth().getDisplayName(TextStyle.FULL, Locale.getDefault()) + " " + shownMonth[0].getYear());
+            days.removeAll();
+            for (String day : new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}) days.add(new JLabel(day, SwingConstants.CENTER));
+            int offset = shownMonth[0].atDay(1).getDayOfWeek().getValue() - 1;
+            for (int i = 0; i < offset; i++) days.add(new JLabel(""));
+            for (int day = 1; day <= shownMonth[0].lengthOfMonth(); day++) {
+                final LocalDate selected = shownMonth[0].atDay(day);
+                JButton button = new JButton(Integer.toString(day));
+                button.addActionListener(event -> { date.setText(selected.toString()); dialog.dispose(); });
+                days.add(button);
+            }
+            days.revalidate();
+            days.repaint();
+            dialog.pack();
+        };
+        previous.addActionListener(e -> { shownMonth[0] = shownMonth[0].minusMonths(1); refresh.run(); });
+        next.addActionListener(e -> { shownMonth[0] = shownMonth[0].plusMonths(1); refresh.run(); });
+        dialog.setContentPane(picker);
+        refresh.run();
+        dialog.setLocationRelativeTo(this);
+        dialog.setVisible(true);
     }
 
     private void addRow(JPanel panel, GridBagConstraints c, String label, Component field) {

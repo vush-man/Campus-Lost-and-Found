@@ -19,8 +19,19 @@ public class MainFrame extends JFrame {
         content.setBorder(new EmptyBorder(10, 12, 12, 12));
         JLabel welcome = new JLabel("Signed in as " + user.getName() + " (" + user.getRole() + ")");
         welcome.setBorder(new EmptyBorder(4, 4, 10, 4));
-        content.add(welcome, BorderLayout.NORTH);
+        JButton logout = new JButton("Log out");
+        LoginFrame.style(logout);
+        JPanel header = new JPanel(new BorderLayout());
+        header.setOpaque(false);
+        header.setBorder(new EmptyBorder(4, 4, 10, 4));
+        header.add(welcome, BorderLayout.CENTER);
+        header.add(logout, BorderLayout.EAST);
+        content.add(header, BorderLayout.NORTH);
         content.add(tabs, BorderLayout.CENTER);
         setContentPane(content);
+        logout.addActionListener(e -> {
+            dispose();
+            new LoginFrame().setVisible(true);
+        });
     }
 }

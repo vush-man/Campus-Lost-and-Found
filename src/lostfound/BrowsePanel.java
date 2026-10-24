@@ -16,6 +16,7 @@ public class BrowsePanel extends JPanel {
     private final ItemTableModel model = new ItemTableModel();
     private final JTable table = new JTable(model);
     private final JButton claim = new JButton("Claim selected item");
+    private final JButton refresh = new JButton("Refresh");
 
     public BrowsePanel(User user) {
         this.user = user;
@@ -25,6 +26,7 @@ public class BrowsePanel extends JPanel {
         controls.add(new JLabel("Search")); controls.add(search);
         controls.add(new JLabel("Type")); controls.add(filter);
         LoginFrame.style(claim); controls.add(claim);
+        controls.add(refresh);
         add(controls, BorderLayout.NORTH);
         table.setFillsViewportHeight(true);
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -37,6 +39,7 @@ public class BrowsePanel extends JPanel {
             public void changedUpdate(javax.swing.event.DocumentEvent e) { load(); }
         });
         filter.addActionListener(e -> load());
+        refresh.addActionListener(e -> load());
         claim.addActionListener(e -> claimSelected());
         table.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) { if (e.getClickCount() == 2) showDetails(); }
